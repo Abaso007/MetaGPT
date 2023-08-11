@@ -85,14 +85,11 @@ class GoogleAPIWrapper:
             # Handle errors in the API call
             logger.exception(f"fail to search {query} for {e}")
             search_results = []
-        
+
         focus = focus or ["snippet", "link", "title"]
         details = [{i: j for i, j in item_dict.items() if i in focus} for item_dict in search_results]
         # Return the list of search result URLs
-        if as_string:
-            return safe_google_results(details)
-        
-        return details
+        return safe_google_results(details) if as_string else details
 
 
 def safe_google_results(results: str | list) -> str:
@@ -104,11 +101,11 @@ def safe_google_results(results: str | list) -> str:
     Returns:
         The results of the search.
     """
-    if isinstance(results, list):
-        safe_message = json.dumps([result for result in results])
-    else:
-        safe_message = results.encode("utf-8", "ignore").decode("utf-8")
-    return safe_message
+    return (
+        json.dumps(list(results))
+        if isinstance(results, list)
+        else results.encode("utf-8", "ignore").decode("utf-8")
+    )
 
 
 if __name__ == "__main__":
